@@ -81,7 +81,7 @@ const GAMES=[
 const ROWS=[['top','🔥 Populair'],['actie','⚔️ Actie'],['rp','🏙️ Rollenspel & Tycoon'],['sport','⚽ Sport & Race']];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function tile(g){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th"><img src="thumbs/${g.id}.jpg?v=2" alt="${esc(g.t)}" loading="lazy"></div><div class="t">${esc(g.t)}</div><div class="s">${PLAYS[g.id]?'▶ '+fmt(PLAYS[g.id])+'× gespeeld':'Belgorac'}</div></button>`}
+function tile(g){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th"><img src="thumbs/${g.id}.jpg?v=2" alt="${esc(g.t)}" loading="lazy"></div><div class="t">${esc(g.t)}</div><div class="s">${g.id in PLAYS?'▶ '+fmt(PLAYS[g.id])+'× gespeeld':'Belgorac'}</div></button>`}
 function render(){const q=$('#q').value.trim().toLowerCase();let h='';
  if(q){const r=GAMES.filter(g=>(g.t+' '+g.g+' '+g.d).toLowerCase().includes(q));h=`<h2>Zoekresultaten</h2>`+(r.length?`<div class="row">${r.map(tile).join('')}</div>`:`<p class="empty">Geen spel gevonden voor "${esc(q)}".</p>`)}
  else for(const[c,n]of ROWS){let list=GAMES.filter(g=>g.cat.includes(c));
@@ -89,7 +89,7 @@ function render(){const q=$('#q').value.trim().toLowerCase();let h='';
   h+=`<h2>${n}</h2><div class="row">${list.map(tile).join('')}</div>`}
  $('#rows').innerHTML=h}
 function openGame(id){const g=GAMES.find(x=>x.id===id);
- $('#gp').innerHTML=`<button class="x" onclick="closeGame()">✕</button><img src="thumbs/${g.id}.jpg?v=2" alt=""><div class="info"><h3>${esc(g.t)}</h3><div class="by">door <b>Belgorac</b> · ${esc(g.g)}${PLAYS[g.id]?' · ▶ '+fmt(PLAYS[g.id])+'× gespeeld':''}</div><div class="d">${esc(g.d)}</div><div class="c">🎮 ${esc(g.c)}</div>
+ $('#gp').innerHTML=`<button class="x" onclick="closeGame()">✕</button><img src="thumbs/${g.id}.jpg?v=2" alt=""><div class="info"><h3>${esc(g.t)}</h3><div class="by">door <b>Belgorac</b> · ${esc(g.g)}${g.id in PLAYS?' · ▶ '+fmt(PLAYS[g.id])+'× gespeeld':''}</div><div class="d">${esc(g.d)}</div><div class="c">🎮 ${esc(g.c)}</div>
  <a class="play" href="${SITE+g.id}/" onclick="countPlay('${g.id}')"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l12-7.5z"/></svg>Spelen</a></div>`;$('#gameOv').classList.add('on')}
 function closeGame(){$('#gameOv').classList.remove('on')}
 $('#gameOv').onclick=e=>{if(e.target.id==='gameOv')closeGame()};
