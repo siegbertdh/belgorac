@@ -60,6 +60,15 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:20px}
 <div class="ov" id="gameOv"><div class="gp" id="gp"></div></div>
 <script>
 const SITE='https://siegbertdh.github.io/';
+/* Supabase (anonieme speltellers) */
+const SB_URL='https://fsjrmiroycwmjelvcpbf.supabase.co';
+const SB_KEY='sb_publishable_dBaJrC5WMpDMDzctZlBVYg_XuDkY5xt';   // de 'anon' / 'publishable' key — NOOIT de service_role / secret key
+const PLAYS={};
+function sbHeaders(){const h={apikey:SB_KEY,'Content-Type':'application/json'};if(SB_KEY.startsWith('eyJ'))h.Authorization='Bearer '+SB_KEY;return h}
+async function loadPlays(){if(!SB_KEY)return;try{const r=await fetch(SB_URL+'/rest/v1/game_plays?select=game,plays',{headers:sbHeaders()});if(!r.ok)return;for(const x of await r.json())PLAYS[x.game]=x.plays;render()}catch(e){}}
+function countPlay(id){if(!SB_KEY)return;try{const k='bg-counted-'+id,last=+localStorage.getItem(k)||0;if(Date.now()-last<10*60*1000)return;localStorage.setItem(k,Date.now())}catch(e){}
+ try{fetch(SB_URL+'/rest/v1/rpc/count_play',{method:'POST',headers:sbHeaders(),body:JSON.stringify({g:id}),keepalive:true})}catch(e){}}
+const fmt=n=>n>=1000?(n/1000).toFixed(1).replace('.0','')+'k':String(n);
 const GAMES=[
  {id:'belgoville',t:'Belgoville',g:'Rollenspel',d:'Jouw eigen Belgische stad in 3D. Kies een huis, zoek een job, verdien geld, koop auto\'s en rij rond. Met frituur, markt, politie en ziekenhuis.',c:'Pijltjes/WASD = lopen/rijden · E = deur/auto · L = zwaailichten · H = toeter',cat:['top','rp']},
  {id:'zombienacht',t:'Zombienacht',g:'Actie',d:'Het is 22:00 in Belgoville en de zombies komen eraan. Overleef de nacht tot 06:00, koop laser-upgrades bij de politie en red de stad.',c:'Pijltjes = lopen · SPATIE/F = laserpistool · E = deur/auto · L = sirene',cat:['top','actie']},
@@ -72,18 +81,20 @@ const GAMES=[
 const ROWS=[['top','🔥 Populair'],['actie','⚔️ Actie'],['rp','🏙️ Rollenspel & Tycoon'],['sport','⚽ Sport & Race']];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function tile(g){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th"><img src="thumbs/${g.id}.jpg?v=2" alt="${esc(g.t)}" loading="lazy"><span class="tag">${esc(g.g.toUpperCase())}</span></div><div class="t">${esc(g.t)}</div><div class="s">Belgorac</div></button>`}
+function tile(g){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th"><img src="thumbs/${g.id}.jpg?v=2" alt="${esc(g.t)}" loading="lazy"></div><div class="t">${esc(g.t)}</div><div class="s">${PLAYS[g.id]?'▶ '+fmt(PLAYS[g.id])+'× gespeeld':'Belgorac'}</div></button>`}
 function render(){const q=$('#q').value.trim().toLowerCase();let h='';
  if(q){const r=GAMES.filter(g=>(g.t+' '+g.g+' '+g.d).toLowerCase().includes(q));h=`<h2>Zoekresultaten</h2>`+(r.length?`<div class="row">${r.map(tile).join('')}</div>`:`<p class="empty">Geen spel gevonden voor "${esc(q)}".</p>`)}
- else for(const[c,n]of ROWS)h+=`<h2>${n}</h2><div class="row">${GAMES.filter(g=>g.cat.includes(c)).map(tile).join('')}</div>`;
+ else for(const[c,n]of ROWS){let list=GAMES.filter(g=>g.cat.includes(c));
+  if(c==='top'&&Object.values(PLAYS).some(v=>v>0))list=[...GAMES].sort((a,b)=>(PLAYS[b.id]||0)-(PLAYS[a.id]||0)).slice(0,4);
+  h+=`<h2>${n}</h2><div class="row">${list.map(tile).join('')}</div>`}
  $('#rows').innerHTML=h}
 function openGame(id){const g=GAMES.find(x=>x.id===id);
- $('#gp').innerHTML=`<button class="x" onclick="closeGame()">✕</button><img src="thumbs/${g.id}.jpg?v=2" alt=""><div class="info"><h3>${esc(g.t)}</h3><div class="by">door <b>Belgorac</b> · ${esc(g.g)}</div><div class="d">${esc(g.d)}</div><div class="c">🎮 ${esc(g.c)}</div>
- <a class="play" href="${SITE+g.id}/"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l12-7.5z"/></svg>Spelen</a></div>`;$('#gameOv').classList.add('on')}
+ $('#gp').innerHTML=`<button class="x" onclick="closeGame()">✕</button><img src="thumbs/${g.id}.jpg?v=2" alt=""><div class="info"><h3>${esc(g.t)}</h3><div class="by">door <b>Belgorac</b> · ${esc(g.g)}${PLAYS[g.id]?' · ▶ '+fmt(PLAYS[g.id])+'× gespeeld':''}</div><div class="d">${esc(g.d)}</div><div class="c">🎮 ${esc(g.c)}</div>
+ <a class="play" href="${SITE+g.id}/" onclick="countPlay('${g.id}')"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l12-7.5z"/></svg>Spelen</a></div>`;$('#gameOv').classList.add('on')}
 function closeGame(){$('#gameOv').classList.remove('on')}
 $('#gameOv').onclick=e=>{if(e.target.id==='gameOv')closeGame()};
 addEventListener('keydown',e=>{if(e.key==='Escape')closeGame()});
-$('#q').oninput=render;render();
+$('#q').oninput=render;render();loadPlays();
 </script>
 </body>
 </html>
