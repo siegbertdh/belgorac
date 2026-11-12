@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Belgorac – Spellen</title>
+<link rel="icon" href="logo/belgorac-icoon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#121315;--panel:#1d1f22;--card:#25282c;--line:#33373c;--text:#f2f3f5;--mute:#9aa0a6;--green:#00b06f;--green2:#00935c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:10px 18px;background:#0b0c0d;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;font-weight:900;letter-spacing:6px;font-size:18px}
+.brand img{width:34px;height:34px;border-radius:8px}
+.search{flex:1;max-width:420px;margin-left:auto;position:relative}
+.search input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px 9px 34px;color:var(--text);font:inherit}
+.search:before{content:'⌕';position:absolute;left:12px;top:6px;color:var(--mute);font-size:18px}
+main{max-width:1200px;margin:0 auto;padding:24px 18px 60px}
+.hero h1{margin:0;font-size:30px;font-weight:900}
+.hero p{margin:6px 0 0;color:var(--mute)}
+h2{font-size:20px;font-weight:800;margin:28px 0 12px}
+.row{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.tile{background:none;text-align:left;padding:0;display:block}
+.tile .th{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--card)}
+.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.tile:hover img{transform:scale(1.06)}
+.tile .tag{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.65);font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.5px}
+.tile .t{font-weight:800;margin-top:8px;font-size:15px}
+.tile .s{color:var(--mute);font-size:13px;margin-top:2px}
+.empty{color:var(--mute)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.ov.on{display:flex}
+.gp{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:900px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:1.4fr 1fr}
+.gp img{width:100%;height:100%;object-fit:cover;border-radius:16px 0 0 16px;min-height:280px}
+.gp .info{padding:22px;display:flex;flex-direction:column;gap:10px}
+.gp h3{margin:0;font-size:26px;font-weight:900}
+.gp .by{color:var(--mute);font-size:14px}
+.gp .d{font-size:15px;line-height:1.5;color:#d7dadf}
+.gp .c{font-size:13px;color:var(--mute);background:var(--card);border-radius:10px;padding:10px;line-height:1.5}
+.play{background:var(--green);border-radius:12px;padding:14px;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:auto;box-shadow:0 4px 0 var(--green2);text-decoration:none;color:#fff}
+.play:hover{filter:brightness(1.1)}
+.play svg{width:26px;height:26px}
+.x{position:absolute;right:14px;top:14px;background:var(--card);width:38px;height:38px;border-radius:50%;font-size:18px}
+footer{text-align:center;color:var(--mute);font-size:12px;padding:20px}
+@media(max-width:760px){header{flex-wrap:wrap}.search{order:5;max-width:none;flex-basis:100%}.gp{grid-template-columns:1fr}.gp img{border-radius:16px 16px 0 0;min-height:0;aspect-ratio:16/9}}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="./"><img src="logo/belgorac-icoon.svg" alt=""><span>BELGORAC</span></a>
+  <div class="search"><input id="q" placeholder="Zoek een spel..."></div>
+</header>
+<main>
+  <div class="hero"><h1>Kies een spel</h1><p>Alle spellen van Belgorac. Gratis, in je browser, op computer en tablet.</p></div>
+  <div id="rows"></div>
+</main>
+<footer>© Belgorac · Maker: Mattis D'Haese</footer>
+<div class="ov" id="gameOv"><div class="gp" id="gp"></div></div>
+<script>
+const SITE='https://siegbertdh.github.io/';
+const GAMES=[
+ {id:'belgoville',t:'Belgoville',g:'Rollenspel',d:'Jouw eigen Belgische stad in 3D. Kies een huis, zoek een job, verdien geld, koop auto\'s en rij rond. Met frituur, markt, politie en ziekenhuis.',c:'Pijltjes/WASD = lopen/rijden · E = deur/auto · L = zwaailichten · H = toeter',cat:['top','rp']},
+ {id:'zombienacht',t:'Zombienacht',g:'Actie',d:'Het is 22:00 in Belgoville en de zombies komen eraan. Overleef de nacht tot 06:00, koop laser-upgrades bij de politie en red de stad.',c:'Pijltjes = lopen · SPATIE/F = laserpistool · E = deur/auto · L = sirene',cat:['top','actie']},
+ {id:'nova3-demonenjacht',t:'NOVA3: Demonenjacht',g:'Actie',d:'De demonen vallen de stad aan. Speel als Hana, Yuna of Sora, overleef 10 golven en versla de Demonenkoning.',c:'WASD = lopen · SPATIE = aanvallen · K = speciale aanval · Q = song attack · 1/2/3 = wisselen',cat:['actie','top']},
+ {id:'belgogoal',t:'BelgoGoal',g:'Sport',d:'Penalty\'s! Kies je land, schiet 5 keer en keep 5 keer. Gelijk? Dan volgt sudden death.',c:'Mik met de ring · tik voor kracht · keepen = tik op het doel',cat:['sport','top']},
+ {id:'belgofashion',t:'BelgoFashion',g:'Mode',d:'Je krijgt een thema. Kleed je zo mooi mogelijk aan voor de tijd om is, loop over de catwalk en laat de jury punten geven.',c:'Kies kleren, kleuren en patronen · Klaar = naar de catwalk',cat:['rp']},
+ {id:'fietsrace',t:'Fietsrace',g:'Race',d:'Fiets zo ver mogelijk. Ontwijk auto\'s, putten, pionnen en honden. Pak muntjes en de bidon voor TURBO.',c:'Pijltjes ← → of slepen · B = fietsbel',cat:['sport','actie']},
+ {id:'king-of-pop-tycoon',t:'Concert Tycoon',g:'Tycoon',d:'Jij bent de organisator van het grootste concert ooit. Bouw randactiviteiten, lok fans en speel 4 levels van stadspark tot wereldtournee.',c:'Klik om te bouwen · beheer je geld en fans',cat:['rp']},
+];
+const ROWS=[['top','🔥 Populair'],['actie','⚔️ Actie'],['rp','🏙️ Rollenspel & Tycoon'],['sport','⚽ Sport & Race']];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function tile(g){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th"><img src="thumbs/${g.id}.jpg" alt="${esc(g.t)}" loading="lazy"><span class="tag">${esc(g.g.toUpperCase())}</span></div><div class="t">${esc(g.t)}</div><div class="s">Belgorac</div></button>`}
+function render(){const q=$('#q').value.trim().toLowerCase();let h='';
+ if(q){const r=GAMES.filter(g=>(g.t+' '+g.g+' '+g.d).toLowerCase().includes(q));h=`<h2>Zoekresultaten</h2>`+(r.length?`<div class="row">${r.map(tile).join('')}</div>`:`<p class="empty">Geen spel gevonden voor "${esc(q)}".</p>`)}
+ else for(const[c,n]of ROWS)h+=`<h2>${n}</h2><div class="row">${GAMES.filter(g=>g.cat.includes(c)).map(tile).join('')}</div>`;
+ $('#rows').innerHTML=h}
+function openGame(id){const g=GAMES.find(x=>x.id===id);
+ $('#gp').innerHTML=`<button class="x" onclick="closeGame()">✕</button><img src="thumbs/${g.id}.jpg" alt=""><div class="info"><h3>${esc(g.t)}</h3><div class="by">door <b>Belgorac</b> · ${esc(g.g)}</div><div class="d">${esc(g.d)}</div><div class="c">🎮 ${esc(g.c)}</div>
+ <a class="play" href="${SITE+g.id}/"><svg viewBox="0 0 24 24" fill="#fff"><path d="M7 4.5v15l12-7.5z"/></svg>Spelen</a></div>`;$('#gameOv').classList.add('on')}
+function closeGame(){$('#gameOv').classList.remove('on')}
+$('#gameOv').onclick=e=>{if(e.target.id==='gameOv')closeGame()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeGame()});
+$('#q').oninput=render;render();
+</script>
+</body>
+</html>
