@@ -29,6 +29,8 @@ h2{font-size:20px;font-weight:800;margin:28px 0 12px}
 .tile .tag{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.65);font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.5px}
 .tile .t{font-weight:800;margin-top:8px;font-size:15px}
 .tile .s{color:var(--mute);font-size:13px;margin-top:2px}
+.tile .rk{z-index:2;font-size:16px;background:#ffb800;color:#111;padding:4px 10px}
+h2 small{font-size:13px;color:var(--mute);font-weight:600;margin-left:8px}
 .empty{color:var(--mute)}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
 .ov.on{display:flex}
@@ -81,12 +83,12 @@ const GAMES=[
 const ROWS=[['top','🔥 Populair'],['actie','⚔️ Actie'],['rp','🏙️ Rollenspel & Tycoon'],['sport','⚽ Sport & Race']];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function tile(g){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th"><img src="thumbs/${g.id}.jpg?v=2" alt="${esc(g.t)}" loading="lazy"></div><div class="t">${esc(g.t)}</div><div class="s">${g.id in PLAYS?'▶ '+fmt(PLAYS[g.id])+'× gespeeld':'Belgorac'}</div></button>`}
+function tile(g,i,rank){return`<button class="tile" onclick="openGame('${g.id}')"><div class="th">${rank?`<span class="tag rk">#${i+1}</span>`:''}<img src="thumbs/${g.id}.jpg?v=2" alt="${esc(g.t)}" loading="lazy"></div><div class="t">${esc(g.t)}</div><div class="s">${g.id in PLAYS?'▶ '+fmt(PLAYS[g.id])+'× gespeeld':'Belgorac'}</div></button>`}
 function render(){const q=$('#q').value.trim().toLowerCase();let h='';
- if(q){const r=GAMES.filter(g=>(g.t+' '+g.g+' '+g.d).toLowerCase().includes(q));h=`<h2>Zoekresultaten</h2>`+(r.length?`<div class="row">${r.map(tile).join('')}</div>`:`<p class="empty">Geen spel gevonden voor "${esc(q)}".</p>`)}
+ if(q){const r=GAMES.filter(g=>(g.t+' '+g.g+' '+g.d).toLowerCase().includes(q));h=`<h2>Zoekresultaten</h2>`+(r.length?`<div class="row">${r.map(g=>tile(g)).join('')}</div>`:`<p class="empty">Geen spel gevonden voor "${esc(q)}".</p>`)}
  else for(const[c,n]of ROWS){let list=GAMES.filter(g=>g.cat.includes(c));
   if(c==='top'&&Object.values(PLAYS).some(v=>v>0))list=[...GAMES].sort((a,b)=>(PLAYS[b.id]||0)-(PLAYS[a.id]||0)).slice(0,4);
-  h+=`<h2>${n}</h2><div class="row">${list.map(tile).join('')}</div>`}
+  const rk=c==='top'&&Object.values(PLAYS).some(v=>v>0);h+=`<h2>${n}${rk?' <small>meest gespeeld door iedereen</small>':''}</h2><div class="row">${list.map((g,i)=>tile(g,i,rk)).join('')}</div>`}
  $('#rows').innerHTML=h}
 function openGame(id){const g=GAMES.find(x=>x.id===id);
  $('#gp').innerHTML=`<button class="x" onclick="closeGame()">✕</button><img src="thumbs/${g.id}.jpg?v=2" alt=""><div class="info"><h3>${esc(g.t)}</h3><div class="by">door <b>Belgorac</b> · ${esc(g.g)}${g.id in PLAYS?' · ▶ '+fmt(PLAYS[g.id])+'× gespeeld':''}</div><div class="d">${esc(g.d)}</div><div class="c">🎮 ${esc(g.c)}</div>
