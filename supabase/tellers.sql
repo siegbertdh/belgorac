@@ -18,7 +18,7 @@ create table if not exists public.game_plays (
 
 insert into public.game_plays (game) values
   ('belgoville'), ('zombienacht'), ('nova3-demonenjacht'), ('belgogoal'),
-  ('belgofashion'), ('fietsrace'), ('king-of-pop-tycoon')
+  ('belgofashion'), ('fietsrace'), ('king-of-pop-tycoon'), ('belgodorp')
 on conflict (game) do nothing;
 
 alter table public.game_plays enable row level security;
